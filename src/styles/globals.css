@@ -1,0 +1,10 @@
+@import "./fonts.css";
+
+@import "tailwindcss";
+
+@import "@bprogress/core/css";
+
+@theme {
+    --font-sans: "Poppins", sans-serif;
+    --aspect-cinema: 21/9;
+}

@@ -6,7 +6,7 @@ import { useState } from "react"
 import toast from "react-hot-toast"
 import apiClient from "@/helpers/api-client"
 
-const UploadTechnicalDocument = () => {
+const UploadTestParameter = () => {
     const router = useRouter()
 
     const [errors, setErrors] = useState<any>({})
@@ -20,7 +20,7 @@ const UploadTechnicalDocument = () => {
 
         console.log(formData.get("file_upload"))
 
-        apiClient.postForm("/technical-document/upload", formData).then((response) => {
+        apiClient.postForm("/order/upload", formData).then((response) => {
             console.log("File uploaded successfully:", response.data)
             setIsSubmitting(false)
 
@@ -29,7 +29,7 @@ const UploadTechnicalDocument = () => {
                 id: "submit"
             })
 
-            router.replace("/technical-document")
+            router.replace("/order")
         }).catch((error) => {
             // Assign validation message
             if (error.response.status === 422) {
@@ -50,17 +50,19 @@ const UploadTechnicalDocument = () => {
     }
 
     return (
-        <div>
-            {/* @ts-ignore */}
-            <Form onSubmit={submitHandler} isLoading={isSubmitting} errors={errors} />
-        </div>
+        <MainLayout title="Upload Order">
+            <div>
+                {/* @ts-ignore */}
+                <Form onSubmit={submitHandler} isLoading={isSubmitting} errors={errors} />
+            </div>
+        </MainLayout>
     )
 }
 
-UploadTechnicalDocument.layout = (page: React.ReactElement) => {
+UploadTestParameter.layout = (page: React.ReactElement) => {
     return (
-        <MainLayout title="Upload Technical Document">{page}</MainLayout>
+        <MainLayout title="Upload Test Parameter">{page}</MainLayout>
     )
 }
 
-export default UploadTechnicalDocument
+export default UploadTestParameter

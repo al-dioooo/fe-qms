@@ -59,7 +59,7 @@ const parseNum = (v: unknown) => {
 const round2 = (n: number) => Math.round(n * 100) / 100
 const nearlyEqual = (a: number, b: number, tol = 0.01) => Math.abs(a - b) <= tol
 
-const TestPage: NextPage = () => {
+const TestPage = () => {
     const router = useRouter()
     const { query } = router
 
@@ -182,7 +182,7 @@ const TestPage: NextPage = () => {
         }
 
         apiClient
-            .post('/qc-inspection/store', payload)
+            .post('/qc-inspection', payload)
             .then((response) => {
                 toast.success(response?.data?.message ?? 'Submitted', { id: 'submit' })
                 router.replace('/order')
@@ -199,7 +199,7 @@ const TestPage: NextPage = () => {
     }
 
     return (
-        <MainLayout title="Input QC">
+        <>
             <h1 className="text-2xl font-semibold mb-4">
                 QC Test – Order {orderId} (Product {productCode})
             </h1>
@@ -336,7 +336,13 @@ const TestPage: NextPage = () => {
                     <PrimaryButton as="button" type="submit">Submit Test</PrimaryButton>
                 </div>
             </form>
-        </MainLayout>
+        </>
+    )
+}
+
+TestPage.layout = (page: React.ReactElement) => {
+    return (
+        <MainLayout title="Input QC">{page}</MainLayout>
     )
 }
 

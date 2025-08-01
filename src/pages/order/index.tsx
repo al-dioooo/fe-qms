@@ -6,63 +6,62 @@ import moment from "moment"
 import Link from "next/link"
 import { useRouter } from "next/router"
 
-export default function Order() {
+const Order = () => {
     const router = useRouter()
 
     const { data: orderData, isLoading, isError, mutate } = useOrders()
 
     return (
-        <MainLayout title="Order">
-            <div className="space-y-8">
-                <div className="flex justify-between items-center">
-                    <div></div>
-                    <div>
-                        <PrimaryButton as={Link} href="/order/upload">Upload Data</PrimaryButton>
-                    </div>
+        <div className="space-y-8">
+            <div className="flex justify-between items-center">
+                <div></div>
+                <div>
+                    <PrimaryButton as={Link} href="/order/upload">Upload Data</PrimaryButton>
                 </div>
-                <div className="overflow-x-auto border border-neutral-200 rounded-xl">
-                    <table className="min-w-full overflow-x-auto divide-y divide-neutral-200">
-                        <thead className="bg-neutral-50 rounded-t-3xl">
-                            <tr>
-                                <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                                    <button className="flex items-center space-x-1 text-xs font-medium text-left uppercase text-neutral-500">
-                                        <span>Order</span>
-                                        <span><ChevronUpDown className="w-4 h-4" strokeWidth={2} /></span>
-                                    </button>
-                                </th>
-                                <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                                    <button className="flex items-center space-x-1 text-xs font-medium text-left uppercase text-neutral-500">
-                                        <span>Created At</span>
-                                        <span><ChevronUpDown className="w-4 h-4" strokeWidth={2} /></span>
-                                    </button>
-                                </th>
-                                <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                                    <button className="flex items-center space-x-1 text-xs font-medium text-left uppercase text-neutral-500">
-                                        <span>Updated At</span>
-                                        <span><ChevronUpDown className="w-4 h-4" strokeWidth={2} /></span>
-                                    </button>
-                                </th>
-                                <th scope="col" className="relative px-6 py-3"><span className="sr-only">Action</span></th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-neutral-200">
-                            {/* @ts-ignore */}
-                            {orderData?.data?.length > 0 && orderData?.data?.map((row: any) => (
-                                <tr key={row.id} onClick={() => router.push(`/order/${row.id}`)} className="cursor-pointer hover:bg-neutral-50 transition-colors">
-                                    <td className="px-6 py-4 text-xs font-medium text-neutral-900 whitespace-nowrap">
-                                        {row.order_number}
-                                    </td>
-                                    <td className="px-6 py-4 text-xs text-neutral-500 whitespace-nowrap">
-                                        {moment(row.created_at).format('MMMM D, YYYY')}
-                                    </td>
-                                    <td className="px-6 py-4 text-xs text-neutral-500 whitespace-nowrap">
-                                        {row.updated_at ? moment(row.updated_at).format('MMMM D, YYYY') : '-'}
-                                    </td>
-                                    <td className="px-6 py-4 text-xs font-medium text-right whitespace-nowrap">
-                                        <div className="inline-flex items-center space-x-2">
-                                            <ChevronRight className="text-neutral-500" />
+            </div>
+            <div className="overflow-x-auto border border-neutral-200 rounded-xl">
+                <table className="min-w-full overflow-x-auto divide-y divide-neutral-200">
+                    <thead className="bg-neutral-50 rounded-t-3xl">
+                        <tr>
+                            <th scope="col" className="px-6 py-3 whitespace-nowrap">
+                                <button className="flex items-center space-x-1 text-xs font-medium text-left uppercase text-neutral-500">
+                                    <span>Order</span>
+                                    <span><ChevronUpDown className="w-4 h-4" strokeWidth={2} /></span>
+                                </button>
+                            </th>
+                            <th scope="col" className="px-6 py-3 whitespace-nowrap">
+                                <button className="flex items-center space-x-1 text-xs font-medium text-left uppercase text-neutral-500">
+                                    <span>Created At</span>
+                                    <span><ChevronUpDown className="w-4 h-4" strokeWidth={2} /></span>
+                                </button>
+                            </th>
+                            <th scope="col" className="px-6 py-3 whitespace-nowrap">
+                                <button className="flex items-center space-x-1 text-xs font-medium text-left uppercase text-neutral-500">
+                                    <span>Updated At</span>
+                                    <span><ChevronUpDown className="w-4 h-4" strokeWidth={2} /></span>
+                                </button>
+                            </th>
+                            <th scope="col" className="relative px-6 py-3"><span className="sr-only">Action</span></th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-neutral-200">
+                        {/* @ts-ignore */}
+                        {orderData?.data?.length > 0 && orderData?.data?.map((row: any) => (
+                            <tr key={row.id} onClick={() => router.push(`/order/${row.id}`)} className="cursor-pointer hover:bg-neutral-50 transition-colors">
+                                <td className="px-6 py-4 text-xs font-medium text-neutral-900 whitespace-nowrap">
+                                    {row.order_number}
+                                </td>
+                                <td className="px-6 py-4 text-xs text-neutral-500 whitespace-nowrap">
+                                    {moment(row.created_at).format('MMMM D, YYYY')}
+                                </td>
+                                <td className="px-6 py-4 text-xs text-neutral-500 whitespace-nowrap">
+                                    {row.updated_at ? moment(row.updated_at).format('MMMM D, YYYY') : '-'}
+                                </td>
+                                <td className="px-6 py-4 text-xs font-medium text-right whitespace-nowrap">
+                                    <div className="inline-flex items-center space-x-2">
+                                        <ChevronRight className="text-neutral-500" />
 
-                                            {/* {can('brand.update') && (
+                                        {/* {can('brand.update') && (
                                             <Link to={`${row.id}/edit`} state={{ back: title, from: location?.pathname, transition: 'slide' }} className="inline-flex items-center p-1 text-white transition rounded-full bg-neutral-800 active:hover:scale-90">
                                                 <Pencil className="w-6 h-6" />
                                             </Link>
@@ -71,14 +70,21 @@ export default function Order() {
                                         {can('brand.delete') && (
                                             <Delete data={row} onSuccess={() => mutateBrandData()} />
                                         )} */}
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
-        </MainLayout>
+        </div>
     )
 }
+
+Order.layout = (page: React.ReactElement) => {
+    return (
+        <MainLayout title="Order List">{page}</MainLayout>
+    )
+}
+
+export default Order

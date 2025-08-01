@@ -6,7 +6,7 @@ import { useState } from "react"
 import toast from "react-hot-toast"
 import apiClient from "@/helpers/api-client"
 
-export default function UploadOrder() {
+const UploadOrder = () => {
     const router = useRouter()
 
     const [errors, setErrors] = useState<any>({})
@@ -50,11 +50,17 @@ export default function UploadOrder() {
     }
 
     return (
-        <MainLayout title="Upload Order">
-            <div>
-                {/* @ts-ignore */}
-                <Form onSubmit={submitHandler} isLoading={isSubmitting} errors={errors} />
-            </div>
-        </MainLayout>
+        <div>
+            {/* @ts-ignore */}
+            <Form onSubmit={submitHandler} isLoading={isSubmitting} errors={errors} />
+        </div>
     )
 }
+
+UploadOrder.layout = (page: React.ReactElement) => {
+    return (
+        <MainLayout title="Upload Order">{page}</MainLayout>
+    )
+}
+
+export default UploadOrder

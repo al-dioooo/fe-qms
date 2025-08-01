@@ -6,13 +6,13 @@ import moment from "moment"
 import Link from "next/link"
 import { useRouter } from "next/router"
 
-export default function TechnicalDocument() {
+const TechnicalDocument = () => {
     const router = useRouter()
 
     const { data: technicalDocumentData, isLoading, isError, mutate } = useTechnicalDocument()
 
     return (
-        <MainLayout title="Technical Document">
+        <>
             <div className="space-y-8">
                 <div className="flex justify-between items-center">
                     <div></div>
@@ -105,6 +105,14 @@ export default function TechnicalDocument() {
                     </table>
                 </div>
             </div>
-        </MainLayout>
+        </>
     )
 }
+
+TechnicalDocument.layout = (page: React.ReactElement) => {
+    return (
+        <MainLayout title="Technical Document List">{page}</MainLayout>
+    )
+}
+
+export default TechnicalDocument

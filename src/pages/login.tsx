@@ -1,32 +1,22 @@
 import Input from "@/components/forms/input"
 import Label from "@/components/forms/label"
-import apiClient from "@/helpers/api-client"
+import { login } from "@/helpers/auth"
 import AuthLayout from "@/layouts/auth-layout"
 import { useRouter } from "next/router"
 import { useState } from "react"
 import toast from "react-hot-toast"
 
-export default function Login() {
+const Login = () => {
     const router = useRouter()
 
     const [identifier, setIdentifier] = useState<string>('')
     const [password, setPassword] = useState<string>('')
 
-    const submitHandler = (event: React.FormEvent<HTMLFormElement>) => {
+    const submitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
 
-        const data = {
-            identifier,
-            password
-        }
-
-        apiClient.post("/login", data).then((response: any) => {
-            // Show toast message
-            toast.success(response.data.message, {
-                id: "submit"
-            })
-
-            router.replace("/")
+        await login(identifier, password).then(() => {
+            router.replace('/')
         }).catch((error: any) => {
             // Show toast message
             toast.error(error.response.data.message, {
@@ -65,3 +55,11 @@ export default function Login() {
         </AuthLayout>
     )
 }
+
+Login.layout = (page: React.ReactElement) => {
+    return (
+        <AuthLayout title="Login">{page}</AuthLayout>
+    )
+}
+
+export default Login

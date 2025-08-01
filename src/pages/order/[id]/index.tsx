@@ -1,39 +1,25 @@
 import { useRouter } from "next/router"
 import { useEffect, useLayoutEffect, useState } from "react"
 
-import {
-    useTestParameters,
-    TestParameterData,
-} from "@/hooks/repositories/useTestParameters"
 import MainLayout from "@/layouts/main-layout"
 import axios from "axios"
 import { useOrders } from "@/hooks/repositories/useOrders"
 import apiClient from "@/helpers/api-client"
 import PrimaryButton from "@/components/buttons/primary"
 
-// ─────────────────────────────────────────────────────────────────────────────
-interface TestParameterDetail {
-    id: string
-    name: string
-    unit: string | null
-    value: string | null
+function titleize(value: string) {
+    var words = value.split('-');
+
+    for (var i = 0; i < words.length; i++) {
+        var word = words[i];
+        words[i] = word.charAt(0).toUpperCase() + word.slice(1);
+    }
+
+    return words.join(' ');
 }
 
-// export const getServerSideProps = async ({ params, req: request }: any) => {
-//     const response = await axios.get(`https://api-qms.test/order/${params.id}`, {
-//         headers: {
-//             cookie: request.headers.cookie ?? ''
-//         }
-//     })
 
-//     return {
-//         props: {
-//             data: response.data
-//         }
-//     }
-// }
-
-export default function OrderDetail({ data }: { data: any }) {
+const OrderDetail = ({ data }: { data: any }) => {
     const { query } = useRouter()
     const orderId = Array.isArray(query.id) ? query.id[0] : (query.id ?? "")
 
@@ -41,13 +27,7 @@ export default function OrderDetail({ data }: { data: any }) {
 
     const router = useRouter()
 
-    // Fetch all Test Parameters (each includes its `details` array)
-    const { data: parameters, isLoading, isError } = useTestParameters()
-    const { data: orders, isLoading: isLoadingOrderData } = useOrders()
-
-    // UI state for the selected parameter ID & the one that’s been submitted
-    const [selectedId, setSelectedId] = useState<string | null>(null)
-    const [activeParam, setActiveParam] = useState<TestParameterData | null>(null)
+    const { data: orders, isLoading: isLoadingOrderData, isError } = useOrders()
 
     useEffect(() => {
         if (!isLoadingOrderData) {
@@ -56,13 +36,8 @@ export default function OrderDetail({ data }: { data: any }) {
         }
     }, [orderId, isLoadingOrderData])
 
-    const handleSubmit = () => {
-        const param = parameters?.data?.find((p: any) => p.id === selectedId)
-        if (param) setActiveParam(param)
-    }
-
     return (
-        <MainLayout title={`Order Detail - ${orderId}`}>
+        <>
             <div className="space-y-8">
                 {/* Order Info Card */}
                 <div className="bg-neutral-50 border-white border shadow-[0px_5px_20px_rgba(0,0,0,0.10)] rounded-4xl p-6">
@@ -94,9 +69,16 @@ export default function OrderDetail({ data }: { data: any }) {
                             <ul className="divide-y divide-neutral-200">
                                 {orderData?.products.map((d: any) => (
                                     <li key={d.id} className="py-3 flex justify-between items-center text-base text-neutral-700">
-                                        <span>{d.name}</span>
                                         <div>
-                                            <PrimaryButton as="button" onClick={() => router.push(`/order/${orderId}/test/${d.code}`)}>Test Order</PrimaryButton>
+                                            <div>{d.name}</div>
+                                            <div>
+                                                <span className={`${d.pivot?.status === 'tested-fail' ? 'bg-red-200 text-red-500' : (d.pivot?.status === 'tested-pass' ? 'bg-green-200 text-green-500' : 'bg-neutral-200 text-neutral-500')} text-xs uppercase px-3 py-1 rounded-full font-medium`}>{titleize(d.pivot?.status)}</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            {d.pivot?.status === 'open' && (
+                                                <PrimaryButton as="button" onClick={() => router.push(`/order/${orderId}/test/${d.code}`)}>Test Order</PrimaryButton>
+                                            )}
                                         </div>
                                     </li>
                                 ))}
@@ -105,6 +87,14 @@ export default function OrderDetail({ data }: { data: any }) {
                     )}
                 </div>
             </div>
-        </MainLayout>
+        </>
     )
 }
+
+OrderDetail.layout = (page: React.ReactElement) => {
+    return (
+        <MainLayout title="Order Detail">{page}</MainLayout>
+    )
+}
+
+export default OrderDetail

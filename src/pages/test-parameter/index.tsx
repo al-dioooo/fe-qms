@@ -1,24 +1,23 @@
-// pages/test-template.tsx
-import PrimaryButton from "@/components/buttons/primary";
-import { ChevronRight, ChevronUpDown, Eye } from "@/components/icons/outline";
-import { TestParameterData, useTestParameters } from "@/hooks/repositories/useTestParameters";
-import MainLayout from "@/layouts/main-layout";
-import moment from "moment";
-import Link from "next/link";
+import PrimaryButton from "@/components/buttons/primary"
+import { ChevronRight, ChevronUpDown, Eye } from "@/components/icons/outline"
+import { TestParameterData, useTestParameters } from "@/hooks/repositories/useTestParameters"
+import MainLayout from "@/layouts/main-layout"
+import moment from "moment"
+import Link from "next/link"
 import { useRouter } from "next/router"
 
-export default function TestParameter() {
+const TestParameter = () => {
     const router = useRouter()
 
     const { data: testParameterData, isLoading, isError, mutate } = useTestParameters()
 
     return (
-        <MainLayout title="Test Parameter">
+        <>
             <div className="space-y-8">
                 <div className="flex justify-between items-center">
                     <div></div>
                     <div>
-                        <PrimaryButton as={Link} href="/test-parameter/create">Create Data</PrimaryButton>
+                        <PrimaryButton as={Link} href="/test-parameter/upload">Upload Data</PrimaryButton>
                     </div>
                 </div>
                 <div className="overflow-x-auto border border-neutral-200 rounded-xl">
@@ -91,6 +90,14 @@ export default function TestParameter() {
                     </table>
                 </div>
             </div>
-        </MainLayout>
+        </>
     )
 }
+
+TestParameter.layout = (page: React.ReactElement) => {
+    return (
+        <MainLayout title="Test Parameter List">{page}</MainLayout>
+    )
+}
+
+export default TestParameter

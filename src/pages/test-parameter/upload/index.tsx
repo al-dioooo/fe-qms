@@ -50,12 +50,10 @@ const UploadTestParameter = () => {
     }
 
     return (
-        <MainLayout title="Upload Order">
-            <div>
-                {/* @ts-ignore */}
-                <Form onSubmit={submitHandler} isLoading={isSubmitting} errors={errors} />
-            </div>
-        </MainLayout>
+        <div>
+            {/* @ts-ignore */}
+            <Form onSubmit={submitHandler} isLoading={isSubmitting} errors={errors} />
+        </div>
     )
 }
 

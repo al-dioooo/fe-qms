@@ -56,43 +56,43 @@ export default function Form({ onSubmit = () => { }, isLoading = false, errors }
                                                 <option key={row.id} value={row.id}>{row.lot_number}</option>
                                             ))}
                                         </select> */}
-                                        <SelectDescription error={errors.lot_number} onChange={(value: any) => setOrderDetail(value)} selection={orderDetailData?.data} isLoading={isLoadingOrderDetailData} value={orderDetail} keyValue={(value) => value.id} title={(value: any) => value.lot_number} description={(value: any) => value.so_number} placeholder="Select LOT/SO Number" />
-                                        <ErrorMessage error={errors.lot_number} />
+                                        <SelectDescription error={errors?.order_detail_id} onChange={(value: any) => setOrderDetail(value)} selection={orderDetailData?.data} isLoading={isLoadingOrderDetailData} value={orderDetail} keyValue={(value) => value.id} title={(value: any) => value.lot_number} description={(value: any) => value.so_number} placeholder="Select LOT/SO Number" />
+                                        <ErrorMessage error={errors?.order_detail_id} />
                                     </div>
                                     <div>
                                         <Label htmlFor="packing_list_number" value="Packing List Number" />
-                                        <Input placeholder="Ex: 1200/FG/242000748/2024" onChange={(e) => setPackingListNumber(e.target.value)} id="packing_list_number" error={errors.packing_list_number} />
-                                        <ErrorMessage error={errors.packing_list_number} />
+                                        <Input placeholder="Ex: 1200/FG/242000748/2024" onChange={(e) => setPackingListNumber(e.target.value)} id="packing_list_number" error={errors?.packing_list_number} />
+                                        <ErrorMessage error={errors?.packing_list_number} />
                                     </div>
                                     <div>
                                         <Label htmlFor="customer_name" value="Customer Name" />
-                                        <Input placeholder="Ex: Alice" onChange={(e) => setCustomerName(e.target.value)} id="customer_name" error={errors.customer_name} />
-                                        <ErrorMessage error={errors.customer_name} />
+                                        <Input placeholder="Ex: Alice" onChange={(e) => setCustomerName(e.target.value)} id="customer_name" error={errors?.customer_name} />
+                                        <ErrorMessage error={errors?.customer_name} />
                                     </div>
                                     <div>
                                         <Label htmlFor="type_size" value="Type Size" />
-                                        <Input placeholder="Ex: SM.D-ADSS-A-DG LT 6/1 T Span 100" onChange={(e) => setTypeSize(e.target.value)} id="type_size" error={errors.type_size} />
-                                        <ErrorMessage error={errors.type_size} />
+                                        <Input placeholder="Ex: SM.D-ADSS-A-DG LT 6/1 T Span 100" onChange={(e) => setTypeSize(e.target.value)} id="type_size" error={errors?.type_size} />
+                                        <ErrorMessage error={errors?.type_size} />
                                     </div>
                                     <div>
                                         <Label htmlFor="total_quantity" value="Total Quantity" />
-                                        <Input placeholder="Ex: 300 Meters (1 Drum)" onChange={(e) => setTotalQuantity(e.target.value)} id="total_quantity" error={errors.total_quantity} />
-                                        <ErrorMessage error={errors.total_quantity} />
+                                        <Input placeholder="Ex: 300 Meters (1 Drum)" onChange={(e) => setTotalQuantity(e.target.value)} id="total_quantity" error={errors?.total_quantity} />
+                                        <ErrorMessage error={errors?.total_quantity} />
                                     </div>
                                     <div>
                                         <Label htmlFor="cable_marking" value="Cable Marking" />
-                                        <Input placeholder="Ex: JEMBO CABLE - JSN-Jaringanku- 2025-KABEL OPTIK SM. D - ADSS A DG LT 6/1T" onChange={(e) => setCableMarking(e.target.value)} id="cable_marking" error={errors.cable_marking} />
-                                        <ErrorMessage error={errors.cable_marking} />
+                                        <Input placeholder="Ex: JEMBO CABLE - JSN-Jaringanku- 2025-KABEL OPTIK SM. D - ADSS A DG LT 6/1T" onChange={(e) => setCableMarking(e.target.value)} id="cable_marking" error={errors?.cable_marking} />
+                                        <ErrorMessage error={errors?.cable_marking} />
                                     </div>
                                     <div>
                                         <Label htmlFor="issued_by" value="Issued By" />
-                                        <Input placeholder="Ex: Alice" onChange={(e) => setIssuedBy(e.target.value)} id="issued_by" error={errors.issued_by} />
-                                        <ErrorMessage error={errors.issued_by} />
+                                        <Input placeholder="Ex: Alice" onChange={(e) => setIssuedBy(e.target.value)} id="issued_by" error={errors?.issued_by} />
+                                        <ErrorMessage error={errors?.issued_by} />
                                     </div>
                                     <div>
                                         <Label htmlFor="prepared_by" value="Prepared By" />
-                                        <Input placeholder="Ex: Arisu" onChange={(e) => setPreparedBy(e.target.value)} id="prepared_by" error={errors.prepared_by} />
-                                        <ErrorMessage error={errors.prepared_by} />
+                                        <Input placeholder="Ex: Arisu" onChange={(e) => setPreparedBy(e.target.value)} id="prepared_by" error={errors?.prepared_by} />
+                                        <ErrorMessage error={errors?.prepared_by} />
                                     </div>
                                 </div>
                             </div>

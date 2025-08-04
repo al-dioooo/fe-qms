@@ -33,9 +33,9 @@ export default function Form({ onSubmit = () => { }, isLoading = false }: { onSu
                                 <div className="grid gap-4 sm:grid-cols-2">
                                     <div className="col-span-2 space-y-4 sm:col-span-1">
                                         <div>
-                                            <Label htmlFor="inspection_file" value="Inspection File" />
-                                            <Input type="file" placeholder="Caliburn AK3 - White" onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)} id="inspection_file" error={errors.inspection_file} />
-                                            <ErrorMessage error={errors.inspection_file} />
+                                            <Label htmlFor="product_map_data" value="Product Map Data File" />
+                                            <Input type="file" onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)} id="product_map_data" error={errors.product_map_data} />
+                                            <ErrorMessage error={errors.product_map_data} />
                                         </div>
                                     </div>
                                 </div>

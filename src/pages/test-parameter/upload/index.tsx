@@ -20,7 +20,7 @@ const UploadTestParameter = () => {
 
         console.log(formData.get("file_upload"))
 
-        apiClient.postForm("/order/upload", formData).then((response) => {
+        apiClient.postForm("/test-parameter/upload", formData).then((response) => {
             console.log("File uploaded successfully:", response.data)
             setIsSubmitting(false)
 
@@ -29,7 +29,7 @@ const UploadTestParameter = () => {
                 id: "submit"
             })
 
-            router.replace("/order")
+            router.replace("/test-parameter")
         }).catch((error) => {
             // Assign validation message
             if (error.response.status === 422) {

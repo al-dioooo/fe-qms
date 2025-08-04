@@ -44,6 +44,12 @@ const TechnicalDocument = () => {
                                 </th>
                                 <th scope="col" className="px-6 py-3 whitespace-nowrap">
                                     <button className="flex items-center space-x-1 text-xs font-medium text-left uppercase text-neutral-500">
+                                        <span>Version</span>
+                                        <span><ChevronUpDown className="w-4 h-4" strokeWidth={2} /></span>
+                                    </button>
+                                </th>
+                                <th scope="col" className="px-6 py-3 whitespace-nowrap">
+                                    <button className="flex items-center space-x-1 text-xs font-medium text-left uppercase text-neutral-500">
                                         <span>Uploaded At</span>
                                         <span><ChevronUpDown className="w-4 h-4" strokeWidth={2} /></span>
                                     </button>
@@ -65,7 +71,7 @@ const TechnicalDocument = () => {
                         </thead>
                         <tbody className="bg-white divide-y divide-neutral-200">
                             {technicalDocumentData?.data?.length > 0 && technicalDocumentData?.data?.map((row: any) => (
-                                <tr key={row.id} onClick={() => router.push(`/order/${row.id}`)} className="cursor-pointer hover:bg-neutral-50 transition-colors">
+                                <tr key={row.id} onClick={() => router.push(`/technical-document/${row.id}/map`)} className="cursor-pointer hover:bg-neutral-50 transition-colors">
                                     <td className="px-6 py-4 text-xs font-medium text-neutral-900 whitespace-nowrap">
                                         {row.number}
                                     </td>
@@ -74,6 +80,9 @@ const TechnicalDocument = () => {
                                     </td>
                                     <td className="px-6 py-4 text-xs text-neutral-500 whitespace-nowrap">
                                         {row.type}
+                                    </td>
+                                    <td className="px-6 py-4 text-xs text-neutral-500 whitespace-nowrap">
+                                        {row.version}
                                     </td>
                                     <td className="px-6 py-4 text-xs text-neutral-500 whitespace-nowrap">
                                         {moment(row.uploaded_at).format('MMMM D, YYYY')}

@@ -7,6 +7,8 @@ import { useState } from "react"
 export default function Form({ onSubmit = () => { }, isLoading = false }: { onSubmit: (data: any) => void, isLoading?: boolean }) {
     const errors: any = {}
 
+    const [isLoadingUploadFile, setIsLoadingUploadFile] = useState<boolean>(false)
+
     const [file, setFile] = useState<any>()
 
     const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
@@ -41,7 +43,12 @@ export default function Form({ onSubmit = () => { }, isLoading = false }: { onSu
                                     </div>
                                     <div>
                                         <Label htmlFor="technical_document_file" value="Technical Document (TDS/STD) File" />
-                                        <Input type="file" placeholder="Caliburn AK3 - White" onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)} id="technical_document_file" error={errors.technical_document_file} />
+                                        <div className="inline-flex items-center space-x-2">
+                                            <Input type="file" onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)} id="technical_document_file" error={errors.technical_document_file} />
+                                            <PrimaryButton onClick={() => { }} isLoading={isLoadingUploadFile} as="button">
+                                                Upload
+                                            </PrimaryButton>
+                                        </div>
                                         <ErrorMessage error={errors.technical_document_file} />
                                     </div>
                                 </div>

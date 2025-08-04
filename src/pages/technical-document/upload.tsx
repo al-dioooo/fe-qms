@@ -29,7 +29,7 @@ const UploadTechnicalDocument = () => {
                 id: "submit"
             })
 
-            router.replace("/technical-document")
+            router.replace(`/technical-document/${response.data.data.id}/map`)
         }).catch((error) => {
             // Assign validation message
             if (error.response.status === 422) {

@@ -27,7 +27,7 @@ const OrderDetail = ({ data }: { data: any }) => {
 
     const router = useRouter()
 
-    const { data: orders, isLoading: isLoadingOrderData, isError } = useOrders()
+    const { data: orders, isLoading: isLoadingOrderData, isError } = useOrders({})
 
     useEffect(() => {
         if (!isLoadingOrderData) {

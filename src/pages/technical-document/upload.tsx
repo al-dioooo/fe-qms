@@ -21,9 +21,6 @@ const UploadTechnicalDocument = () => {
         console.log(formData.get("file_upload"))
 
         apiClient.postForm("/technical-document/upload", formData).then((response) => {
-            console.log("File uploaded successfully:", response.data)
-            setIsSubmitting(false)
-
             // Show toast message
             toast.success(response.data.message, {
                 id: "submit"
@@ -44,7 +41,7 @@ const UploadTechnicalDocument = () => {
                 },
                 id: "submit"
             })
-        })
+        }).finally(() => setIsSubmitting(false))
 
         console.log("File uploaded:", data.file)
     }

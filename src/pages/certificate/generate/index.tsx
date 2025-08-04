@@ -36,9 +36,7 @@ const GenerateCertificate = () => {
                 },
                 id: "submit"
             })
-        }).finally(() => {
-            setIsSubmitting(false)
-        })
+        }).finally(() => setIsSubmitting(false))
 
         console.log("File uploaded:", data.file)
     }

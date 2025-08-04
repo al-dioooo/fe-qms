@@ -1,15 +1,60 @@
 import PrimaryButton from "@/components/buttons/primary"
+import InputSearch from "@/components/forms/input-search"
 import { CloudDownload, ChevronUpDown } from "@/components/icons/outline"
+import Pagination from "@/components/pagination"
 import { useCertificates } from "@/hooks/repositories/useCertificates"
+import { useDebounce } from "@/hooks/useDebounce"
 import MainLayout from "@/layouts/main-layout"
 import moment from "moment"
 import Link from "next/link"
 import { useRouter } from "next/router"
+import { useEffect, useState } from "react"
 
 const CertificateList = () => {
     const router = useRouter()
 
-    const { data: certificateData, isLoading, isError, mutate } = useCertificates()
+    const params = {
+        ...router.query,
+        search: router.query.search ?? "",
+        page: Number(router.query.page ?? 1),
+        order_by: router.query.order_by ?? "",
+        direction: router.query.direction ?? ""
+    }
+
+    const [search, setSearch] = useState<string>(String(params.search) ?? "")
+    const debouncedSearch = useDebounce(search, 500)
+
+    useEffect(() => {
+        const query: Record<string, any> = { ...router.query, page: 1 }
+        if (debouncedSearch) {
+            query.search = debouncedSearch
+        } else {
+            delete query.search
+        }
+
+        router.push({ pathname: router.pathname, query }, undefined, {
+            shallow: true
+        });
+    }, [debouncedSearch])
+
+    const toggleSort = (field: string) => {
+        const { order_by, direction, ...rest } = router.query
+
+        // ▸ next direction: ASC → DESC → ASC …
+        let nextDir: "asc" | "desc" = "asc"
+        if (order_by === field && direction !== "desc") nextDir = "desc"
+
+        router.push(
+            {
+                pathname: router.pathname,
+                query: { ...rest, order_by: field, direction: nextDir, page: 1 }, // reset page
+            },
+            undefined,
+            { shallow: true }
+        )
+    }
+
+    const { data: certificateData, isLoading, isError, mutate } = useCertificates(params)
 
     const openInNewTab = (url: string) => {
         const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
@@ -20,7 +65,7 @@ const CertificateList = () => {
         <>
             <div className="space-y-8">
                 <div className="flex justify-between items-center">
-                    <div></div>
+                    <InputSearch onChange={(e) => setSearch(e.target.value)} placeholder="Search data" />
                     <div>
                         <PrimaryButton as={Link} href="/certificate/generate">Generate</PrimaryButton>
                     </div>
@@ -30,27 +75,27 @@ const CertificateList = () => {
                         <thead className="bg-neutral-50 rounded-t-3xl">
                             <tr>
                                 <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                                    <button className="flex items-center space-x-1 text-xs font-medium text-left uppercase text-neutral-500">
+                                    <button onClick={() => toggleSort('certificate_number')} className="cursor-pointer flex items-center space-x-1 text-xs font-medium text-left uppercase text-neutral-500">
                                         <span>Number</span>
-                                        <span><ChevronUpDown className="w-4 h-4" strokeWidth={2} /></span>
+                                        <span><ChevronUpDown direction={router.query.order_by === 'certificate_number' ? (router.query.direction === 'asc' ? 'up' : 'down') : false} className="w-4 h-4" strokeWidth={2} /></span>
                                     </button>
                                 </th>
                                 <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                                    <button className="flex items-center space-x-1 text-xs font-medium text-left uppercase text-neutral-500">
-                                        <span>Uploaded At</span>
-                                        <span><ChevronUpDown className="w-4 h-4" strokeWidth={2} /></span>
+                                    <button onClick={() => toggleSort('issued_at')} className="cursor-pointer flex items-center space-x-1 text-xs font-medium text-left uppercase text-neutral-500">
+                                        <span>Issued At</span>
+                                        <span><ChevronUpDown direction={router.query.order_by === 'issued_at' ? (router.query.direction === 'asc' ? 'up' : 'down') : false} className="w-4 h-4" strokeWidth={2} /></span>
                                     </button>
                                 </th>
                                 <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                                    <button className="flex items-center space-x-1 text-xs font-medium text-left uppercase text-neutral-500">
+                                    <button onClick={() => toggleSort('created_at')} className="cursor-pointer flex items-center space-x-1 text-xs font-medium text-left uppercase text-neutral-500">
                                         <span>Created At</span>
-                                        <span><ChevronUpDown className="w-4 h-4" strokeWidth={2} /></span>
+                                        <span><ChevronUpDown direction={router.query.order_by === 'created_at' ? (router.query.direction === 'asc' ? 'up' : 'down') : false} className="w-4 h-4" strokeWidth={2} /></span>
                                     </button>
                                 </th>
                                 <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                                    <button className="flex items-center space-x-1 text-xs font-medium text-left uppercase text-neutral-500">
+                                    <button onClick={() => toggleSort('updated_at')} className="cursor-pointer flex items-center space-x-1 text-xs font-medium text-left uppercase text-neutral-500">
                                         <span>Updated At</span>
-                                        <span><ChevronUpDown className="w-4 h-4" strokeWidth={2} /></span>
+                                        <span><ChevronUpDown direction={router.query.order_by === 'updated_at' ? (router.query.direction === 'asc' ? 'up' : 'down') : false} className="w-4 h-4" strokeWidth={2} /></span>
                                     </button>
                                 </th>
                                 <th scope="col" className="relative px-6 py-3"><span className="sr-only">Action</span></th>
@@ -63,7 +108,7 @@ const CertificateList = () => {
                                         {row.certificate_number}
                                     </td>
                                     <td className="px-6 py-4 text-xs text-neutral-500 whitespace-nowrap">
-                                        {moment(row.uploaded_at).format('MMMM D, YYYY')}
+                                        {moment(row.issued_at).format('MMMM D, YYYY')}
                                     </td>
                                     <td className="px-6 py-4 text-xs text-neutral-500 whitespace-nowrap">
                                         {moment(row.created_at).format('MMMM D, YYYY')}
@@ -91,6 +136,8 @@ const CertificateList = () => {
                         </tbody>
                     </table>
                 </div>
+
+                <Pagination links={certificateData?.links} from={certificateData?.from} to={certificateData?.to} total={certificateData?.total} />
             </div>
         </>
     )

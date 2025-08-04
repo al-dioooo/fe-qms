@@ -43,12 +43,7 @@ export default function Form({ onSubmit = () => { }, isLoading = false }: { onSu
                                     </div>
                                     <div>
                                         <Label htmlFor="technical_document_file" value="Technical Document (TDS/STD) File" />
-                                        <div className="inline-flex items-center space-x-2">
-                                            <Input type="file" onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)} id="technical_document_file" error={errors.technical_document_file} />
-                                            <PrimaryButton onClick={() => { }} isLoading={isLoadingUploadFile} as="button">
-                                                Upload
-                                            </PrimaryButton>
-                                        </div>
+                                        <Input type="file" onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)} id="technical_document_file" error={errors.technical_document_file} />
                                         <ErrorMessage error={errors.technical_document_file} />
                                     </div>
                                 </div>

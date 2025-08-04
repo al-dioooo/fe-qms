@@ -5,7 +5,7 @@ import MainLayout from '@/layouts/main-layout'
 import PrimaryButton from '@/components/buttons/primary'
 import SelectDescription from '@/components/forms/select-description'
 
-type Detail = { id: string; document_parameter_name: string; document_parameter_code: string; value: string; test_parameter_id: string | null }
+type Detail = { id: string; document_parameter_name: string; document_parameter_code: string; document_parameter_category: string; value: string; test_parameter_id: string | null }
 type Param = { id: string; code: string; name: string }
 
 const MapPage = () => {
@@ -42,15 +42,26 @@ const MapPage = () => {
                 <table className="min-w-full divide-y divide-neutral-200 text-sm">
                     <thead className="bg-neutral-50">
                         <tr>
-                            <th className="px-4 py-2 text-xs font-medium text-neutral-500 text-left uppercase tracking-widest">Detail</th>
+                            <th className="px-4 py-2 text-xs font-medium text-neutral-500 text-left uppercase tracking-widest">Document Parameter</th>
+                            <th className="px-4 py-2 text-xs font-medium text-neutral-500 text-left uppercase tracking-widest">Category</th>
                             <th className="px-4 py-2 text-xs font-medium text-neutral-500 text-left uppercase tracking-widest">Value</th>
-                            <th className="px-4 py-2 text-xs font-medium text-neutral-500 text-left uppercase tracking-widest">Parameter</th>
+                            <th className="px-4 py-2 text-xs font-medium text-neutral-500 text-left uppercase tracking-widest">Test Parameter</th>
                         </tr>
                     </thead>
                     <tbody>
                         {details.map(d => (
                             <tr key={d.id} className="even:bg-neutral-50">
-                                <td className="px-4 py-2">{d.document_parameter_name ?? d.document_parameter_code}</td>
+                                <td className="px-4 py-2">
+                                    <div>
+                                        {d.document_parameter_name}
+                                    </div>
+                                    <div className="text-xs text-neutral-500">
+                                        {d.document_parameter_code}
+                                    </div>
+                                </td>
+                                <td className="px-4 py-2 capitalize">
+                                    {d.document_parameter_category.replace('-', ' ')}
+                                </td>
                                 <td className="px-4 py-2">{d.value ?? '-'}</td>
                                 <td className="px-4 py-2">
                                     <SelectDescription error={false} onChange={(value: any) => setMap({ ...map, [d.id]: value })} selection={params} isLoading={false} value={map[d.id]} keyValue={(value) => value.id} title={(value: any) => value.name} description={(value: any) => value.code} placeholder="Select Parameter" />

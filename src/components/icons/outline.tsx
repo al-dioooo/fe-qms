@@ -4,10 +4,11 @@ export function SmartHome({ className, strokeWidth }: { className?: string, stro
     )
 }
 
-export function ChevronUpDown({ className, strokeWidth }: { className?: string, strokeWidth?: number }) {
+export function ChevronUpDown({ className, strokeWidth, direction }: { className?: string, strokeWidth?: number, direction?: string | null | undefined | boolean }) {
     return (
         <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={strokeWidth ?? 1.5} stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+            <path d="M8 9L12 5L16 9" opacity={direction === "up" ? 1 : .5} stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M16 15L12 19L8 15" opacity={direction === "down" ? 1 : .5} stroke-linecap="round" stroke-linejoin="round" />
         </svg>
     )
 }
@@ -57,5 +58,23 @@ export function Check({ className, strokeWidth }: { className?: string, strokeWi
 export function CloudDownload({ className, strokeWidth }: { className?: string, strokeWidth?: number }) {
     return (
         <svg className={className} xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth ?? 1.5} strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M12 18.004h-5.343c-2.572 -.004 -4.657 -2.011 -4.657 -4.487c0 -2.475 2.085 -4.482 4.657 -4.482c.393 -1.762 1.794 -3.2 3.675 -3.773c1.88 -.572 3.956 -.193 5.444 1c1.488 1.19 2.162 3.007 1.77 4.769h.99c1.38 0 2.573 .813 3.13 1.99" /><path d="M19 16v6" /><path d="M22 19l-3 3l-3 -3" /></svg>
+    )
+}
+
+export function ArrowNarrowLeft({ className, strokeWidth }: { className?: string, strokeWidth?: number }) {
+    return (
+        <svg className={className} xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth ?? 1.5} strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M5 12l14 0" /><path d="M5 12l4 4" /><path d="M5 12l4 -4" /></svg>
+    )
+}
+
+export function ArrowNarrowRight({ className, strokeWidth }: { className?: string, strokeWidth?: number }) {
+    return (
+        <svg className={className} xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth ?? 1.5} strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M5 12l14 0" /><path d="M15 16l4 -4" /><path d="M15 8l4 4" /></svg>
+    )
+}
+
+export function Search({ className, strokeWidth }: { className?: string, strokeWidth?: number }) {
+    return (
+        <svg className={className} xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth ?? 1.5} strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
     )
 }

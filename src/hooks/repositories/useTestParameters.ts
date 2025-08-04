@@ -38,15 +38,18 @@ api.interceptors.request.use(
 )
 
 // 2️⃣  Generic SWR‑compatible fetcher (export for global <SWRConfig> if desired)
-export const axiosFetcher = <T = unknown>(url: string) =>
-    api.get<{ data: T }>(url).then((res) => res.data.data)
+export const axiosFetcher = <T = unknown>([url, params]: [url: string, params: any]) =>
+    api.get<{ data: T }>(url, {
+        params
+    }).then((res) => res.data.data)
 
 // 3️⃣  Hook – returns typed data plus loading / error helpers
 export const useTestParameters = (
+    params: any = {},
     config: SWRConfiguration = {}
 ) => {
     const { data, error, isValidating, mutate } = useSWR<any>(
-        "/test-parameter", // relative to baseURL
+        ["/test-parameter", params],
         axiosFetcher,
         {
             revalidateOnFocus: false,

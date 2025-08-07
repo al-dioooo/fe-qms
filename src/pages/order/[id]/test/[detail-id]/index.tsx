@@ -146,34 +146,40 @@ const TestPage = () => {
                                 const specNum = toNum(specStr)
 
                                 /* ------------------------------------------------------------
-                                 * 2️⃣  Status rules
-                                 *    • no specified value  ➜ PASS  (even with strings)
-                                 *    • numeric spec        ➜ compare with avgNum
-                                 *    • string spec         ➜ all inputs must equal the spec (case-insensitive)
-                                 * ---------------------------------------------------------- */
+ * 2️⃣  Status rules (updated)
+ *    • no input                     ➜ status = '-'
+ *    • no specified value (target)  ➜ PASS (numeric or string)
+ *    • numeric spec                 ➜ compare avgNum ≈ spec
+ *    • string  spec                 ➜ every input === spec (ci)
+ * ---------------------------------------------------------- */
                                 let status: 'PASS' | 'FAIL' | '-'
 
-                                if (!specStr || specStr === '-' || specStr === '') {
-                                    status = rawInputs.length ? 'PASS' : '-'              // no target → always pass
+                                if (rawInputs.length === 0) {
+                                    status = '-'                                                    // empty input
+                                } else if (!specStr || specStr === '-' || specStr === '') {
+                                    status = 'PASS'                                                 // no target → PASS
                                 } else if (numericOK && Number.isFinite(specNum)) {
                                     status = Number.isFinite(avgNum) && eq(avgNum, specNum) ? 'PASS' : 'FAIL'
                                 } else if (!numericOK && !Number.isFinite(specNum)) {
                                     const target = specStr.toLowerCase()
-                                    status = rawInputs.length &&
-                                        rawInputs.every(s => s.toLowerCase() === target) ? 'PASS' : 'FAIL'
+                                    status = rawInputs.every(s => s.toLowerCase() === target) ? 'PASS' : 'FAIL'
                                 } else {
-                                    status = 'FAIL'                                       // mismatched types
+                                    status = 'FAIL'                                                 // mismatched types
                                 }
 
                                 const pass = status === 'PASS'
                                 const avgTone = numericOK
-                                    ? (pass ? 'bg-green-50 text-green-700 font-medium'
-                                        : 'bg-red-50 text-red-700 font-medium')
+                                    ? pass
+                                        ? 'bg-green-50 text-green-700 font-medium'
+                                        : 'bg-red-50 text-red-700 font-medium'
                                     : 'text-neutral-600'
-                                const statusTone = pass ? 'bg-green-50 text-green-700'
-                                    : status === 'FAIL'
-                                        ? 'bg-red-50 text-red-700'
-                                        : 'text-neutral-500'
+
+                                const statusTone =
+                                    pass
+                                        ? 'bg-green-50 text-green-700'
+                                        : status === 'FAIL'
+                                            ? 'bg-red-50 text-red-700'
+                                            : 'text-neutral-500'
 
                                 return (
                                     <tr key={p.id} className="even:bg-neutral-50 text-sm">

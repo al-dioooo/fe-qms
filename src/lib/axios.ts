@@ -1,13 +1,19 @@
 import axios from 'axios'
+import https from 'https'
 import { parseCookies, destroyCookie } from 'nookies'
+
+const agent = new https.Agent({
+    rejectUnauthorized: false // Not secure
+})
 
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
+    httpsAgent: agent
 })
 
 api.interceptors.request.use(config => {
-    const { auth_token } = parseCookies()
-    if (auth_token) config.headers.Authorization = `Bearer ${auth_token}`
+    const { qms_auth_token: token } = parseCookies()
+    if (token) config.headers.Authorization = `Bearer ${token}`
     return config
 })
 

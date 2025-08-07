@@ -6,6 +6,12 @@ import axios from "axios"
 import { useOrders } from "@/hooks/repositories/useOrders"
 import apiClient from "@/helpers/api-client"
 import PrimaryButton from "@/components/buttons/primary"
+import api from "@/lib/axios"
+import { GetServerSideProps, InferGetServerSidePropsType } from "next"
+
+type PageProps = {
+    data: any
+}
 
 function titleize(value: string) {
     var words = value.split('-');
@@ -18,8 +24,21 @@ function titleize(value: string) {
     return words.join(' ');
 }
 
+// export const getServerSideProps: GetServerSideProps<PageProps> = async (context) => {
+//     const { id: orderId } = context.query
 
-const OrderDetail = ({ data }: { data: any }) => {
+//     const response = await apiClient.get(`/order/${orderId}`)
+//     const result = response.data?.data
+
+//     return {
+//         props: {
+//             data: result
+//         }
+//     }
+// }
+
+// const OrderDetail = ({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+const OrderDetail = () => {
     const { query } = useRouter()
     const orderId = Array.isArray(query.id) ? query.id[0] : (query.id ?? "")
 
@@ -27,14 +46,14 @@ const OrderDetail = ({ data }: { data: any }) => {
 
     const router = useRouter()
 
-    const { data: orders, isLoading: isLoadingOrderData, isError } = useOrders({})
+    const { data: orders, isLoading: isLoadingOrderData, isValidating: isValidatingOrderData, isError } = useOrders({})
 
     useEffect(() => {
-        if (!isLoadingOrderData) {
+        if (!isLoadingOrderData && !isValidatingOrderData) {
             // @ts-ignore
             setOrderData(orders?.data?.find((o: any) => o.id === orderId))
         }
-    }, [orderId, isLoadingOrderData])
+    }, [orderId, isLoadingOrderData, isValidatingOrderData])
 
     return (
         <>
@@ -76,9 +95,9 @@ const OrderDetail = ({ data }: { data: any }) => {
                                             </div>
                                         </div>
                                         <div>
-                                            {d.pivot?.status === 'open' && (
-                                                <PrimaryButton as="button" onClick={() => router.push(`/order/${orderId}/test/${d.code}`)}>Test Order</PrimaryButton>
-                                            )}
+                                            <PrimaryButton as="button" onClick={() => d.pivot?.status === 'open' ? router.push(`/order/${orderId}/test/${d.pivot?.id}`) : router.push(`/order/${orderId}/test/${d.pivot?.id}/result`)}>
+                                                {d.pivot?.status === 'open' ? 'Test Order' : 'View Test Result'}
+                                            </PrimaryButton>
                                         </div>
                                     </li>
                                 ))}

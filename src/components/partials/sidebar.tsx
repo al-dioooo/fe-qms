@@ -74,7 +74,7 @@ export default function Sidebar() {
                         </div>
                     </Link> */}
                     <div>
-                        <p className="text-xs text-center text-neutral-500">QC Monitoring System App v0.1.2</p>
+                        <p className="text-xs text-center text-neutral-500">QC Monitoring System App v0.1.3</p>
                     </div>
                 </div>
             </div>

@@ -48,6 +48,7 @@ const TestPage = () => {
     const [tdId, setTdId] = useState('')
     const [td, setTd] = useState<TechnicalDocument | null>(null)
 
+    // TD options
     useEffect(() => {
         (async () => {
             const { data } = await apiClient.get('/technical-document')
@@ -57,6 +58,7 @@ const TestPage = () => {
         })()
     }, [])
 
+    // parameters for this order-detail
     useEffect(() => {
         if (!detailId) return
             ; (async () => {
@@ -69,6 +71,7 @@ const TestPage = () => {
             })()
     }, [detailId])
 
+    // selected TD
     useEffect(() => {
         if (!tdId) { setTd(null); return }
         ; (async () => {
@@ -98,19 +101,24 @@ const TestPage = () => {
 
         const items = params.map((p) => {
             const vals = measure[p.id] ?? []
-            const rawInputs = vals.map(v => (v.value ?? '').toString().trim()).filter(s => s !== '')
-            const numericOK = rawInputs.length > 0 && rawInputs.every(s => !Number.isNaN(parseFloat(s.replace(',', '.'))))
-            const nums = numericOK ? rawInputs.map(s => parseFloat(s.replace(',', '.'))) : []
+            // SEND ALL VALUES (including empty):
+            const allValues = vals.map(v => (v.value ?? '').toString().trim())
+
+            // Use only non-empty entries for numeric/string checks:
+            const rawNonEmpty = allValues.filter(s => s !== '')
+            const numericOK = rawNonEmpty.length > 0 && rawNonEmpty.every(s => !Number.isNaN(parseFloat(s.replace(',', '.'))))
+            const nums = numericOK ? rawNonEmpty.map(s => parseFloat(s.replace(',', '.'))) : []
             const avgNum = nums.length ? r2(nums.reduce((a, b) => a + b, 0) / nums.length) : NaN
 
             const specStr = specified[p.id]
             const specInfo = parseSpecRange(specStr)
 
             let status: 'pass' | 'fail' | '-'
-            if ((specStr && specStr !== '-' && specStr !== '') && rawInputs.length === 0) {
+            if (rawNonEmpty.length === 0) {
+                // No operator input -> send '-' regardless of spec visibility
                 status = '-'
             } else if (specInfo.kind === 'none') {
-                status = rawInputs.length ? 'pass' : '-'
+                status = 'pass'
             } else if (specInfo.kind === 'numeric') {
                 if (!numericOK || !Number.isFinite(avgNum)) {
                     status = 'fail'
@@ -124,13 +132,13 @@ const TestPage = () => {
                 }
             } else {
                 const target = (specInfo as any).target as string
-                status = rawInputs.length && rawInputs.every(s => s.toLowerCase() === target.toLowerCase()) ? 'pass' : 'fail'
+                status = rawNonEmpty.every(s => s.toLowerCase() === target.toLowerCase()) ? 'pass' : 'fail'
             }
 
             return {
                 test_parameter_id: p.id,
-                values: rawInputs,
-                status,
+                values: allValues,   // include empty strings
+                status,              // '-' when no input
             }
         })
 
@@ -182,9 +190,11 @@ const TestPage = () => {
                                 const steps = Math.min(p.test_step, TOTAL_COLS)
                                 const colspans = spans(steps)
 
-                                const rawInputs = vals.map(v => (v.value ?? '').toString().trim()).filter(s => s !== '')
-                                const numericOK = rawInputs.length > 0 && rawInputs.every(s => !Number.isNaN(parseFloat(s.replace(',', '.'))))
-                                const nums = numericOK ? rawInputs.map(s => parseFloat(s.replace(',', '.'))) : []
+                                // For display calculations, consider only non-empty inputs
+                                const allValues = vals.map(v => (v.value ?? '').toString().trim())
+                                const rawNonEmpty = allValues.filter(s => s !== '')
+                                const numericOK = rawNonEmpty.length > 0 && rawNonEmpty.every(s => !Number.isNaN(parseFloat(s.replace(',', '.'))))
+                                const nums = numericOK ? rawNonEmpty.map(s => parseFloat(s.replace(',', '.'))) : []
                                 const minVal = nums.length ? Math.min(...nums).toFixed(2) : '-'
                                 const maxVal = nums.length ? Math.max(...nums).toFixed(2) : '-'
                                 const avgNum = nums.length ? r2(nums.reduce((a, b) => a + b, 0) / nums.length) : NaN
@@ -192,28 +202,29 @@ const TestPage = () => {
                                 const specStr = specified[p.id]
                                 const specInfo = parseSpecRange(specStr)
 
-                                let status: 'PASS' | 'FAIL' | '-'
-                                if ((specStr && specStr !== '-' && specStr !== '') && rawInputs.length === 0) {
-                                    status = '-'
+                                // Compute status code for display, but don't show if '-'
+                                let statusCode: 'PASS' | 'FAIL' | '-'
+                                if (rawNonEmpty.length === 0) {
+                                    statusCode = '-'
                                 } else if (specInfo.kind === 'none') {
-                                    status = rawInputs.length ? 'PASS' : '-'
+                                    statusCode = 'PASS'
                                 } else if (specInfo.kind === 'numeric') {
                                     if (!numericOK || !Number.isFinite(avgNum)) {
-                                        status = 'FAIL'
+                                        statusCode = 'FAIL'
                                     } else if (typeof (specInfo as any).min === 'number' && typeof (specInfo as any).max === 'number') {
                                         const { min, max } = specInfo as { min: number; max: number }
-                                        status = (avgNum >= min - EPS && avgNum <= max + EPS) ? 'PASS' : 'FAIL'
+                                        statusCode = (avgNum >= min - EPS && avgNum <= max + EPS) ? 'PASS' : 'FAIL'
                                     } else if (typeof (specInfo as any).target === 'number') {
-                                        status = eq(avgNum, (specInfo as any).target) ? 'PASS' : 'FAIL'
+                                        statusCode = eq(avgNum, (specInfo as any).target) ? 'PASS' : 'FAIL'
                                     } else {
-                                        status = 'FAIL'
+                                        statusCode = 'FAIL'
                                     }
                                 } else {
                                     const target = (specInfo as any).target as string
-                                    status = rawInputs.length && rawInputs.every(s => s.toLowerCase() === target.toLowerCase()) ? 'PASS' : 'FAIL'
+                                    statusCode = rawNonEmpty.every(s => s.toLowerCase() === target.toLowerCase()) ? 'PASS' : 'FAIL'
                                 }
 
-                                const pass = status === 'PASS'
+                                const pass = statusCode === 'PASS'
                                 const avgTone = numericOK
                                     ? pass
                                         ? 'bg-green-50 text-green-700 font-medium'
@@ -222,9 +233,11 @@ const TestPage = () => {
                                 const statusTone =
                                     pass
                                         ? 'bg-green-50 text-green-700'
-                                        : status === 'FAIL'
+                                        : statusCode === 'FAIL'
                                             ? 'bg-red-50 text-red-700'
                                             : 'text-neutral-500'
+
+                                const statusLabel = statusCode === '-' ? '' : statusCode
 
                                 return (
                                     <tr key={p.id} className="even:bg-neutral-50 text-sm">
@@ -253,7 +266,7 @@ const TestPage = () => {
                                         </td>
                                         <td className="px-3 py-2 text-center">{maxVal}</td>
                                         <td className="px-3 py-2 text-center">{specStr ?? '-'}</td>
-                                        <td className={`px-3 py-2 text-center ${statusTone}`}>{status}</td>
+                                        <td className={`px-3 py-2 text-center ${statusTone}`}>{statusLabel}</td>
                                     </tr>
                                 )
                             })}

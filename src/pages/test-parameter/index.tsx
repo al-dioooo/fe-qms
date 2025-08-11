@@ -1,7 +1,7 @@
 import PrimaryButton from "@/components/buttons/primary"
 import Input from "@/components/forms/input"
 import InputSearch from "@/components/forms/input-search"
-import { ChevronRight, ChevronUpDown, Eye } from "@/components/icons/outline"
+import { ChevronRight, ChevronUpDown, Eye, Pencil } from "@/components/icons/outline"
 import Pagination from "@/components/pagination"
 import { TestParameterData, useTestParameters } from "@/hooks/repositories/useTestParameters"
 import { useDebounce } from "@/hooks/useDebounce"
@@ -100,7 +100,7 @@ const TestParameter = () => {
 
                         <tbody className="bg-white divide-y divide-neutral-200">
                             {testParameterData?.data?.map((row: TestParameterData) => (
-                                <tr key={row.id} onClick={() => router.push(`/test-parameter/${row.id}`)} className="cursor-pointer hover:bg-neutral-50 transition-colors">
+                                <tr key={row.id} onClick={() => router.push(`/test-parameter/${row.id}/edit`)} className="cursor-pointer hover:bg-neutral-50 transition-colors">
                                     <td className="px-6 py-4 text-xs text-neutral-500 whitespace-nowrap">
                                         <div className="space-y-1">
                                             <div className="font-medium text-neutral-900">{row.name}</div>
@@ -118,7 +118,7 @@ const TestParameter = () => {
                                     </td>
                                     <td className="px-6 py-4 text-xs font-medium text-right whitespace-nowrap">
                                         <div className="inline-flex items-center space-x-2">
-                                            <ChevronRight className="text-neutral-500" />
+                                            <Pencil className="text-neutral-500" />
                                         </div>
                                     </td>
                                 </tr>

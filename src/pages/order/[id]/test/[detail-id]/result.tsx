@@ -12,7 +12,8 @@ const toNum = (v: any) => { const f = parseFloat(String(v).replace(',', '.')); r
 type Param = { id: string; name: string; unit: string | null; test_step: number }
 type Row = { test_parameter: Param; values: (string | number)[] }
 type DocDet = { test_parameter_id: string | null; value: string | null }
-type Res = { technical_document: { number: string; details: DocDet[] }; details: Row[] }
+type TDInfo = { number: string; version?: number | null; details: DocDet[] }
+type Res = { technical_document: TDInfo; details: Row[] }
 
 const Result = () => {
     const { query } = useRouter()
@@ -37,7 +38,11 @@ const Result = () => {
     if (!data) return null
     return (
         <>
-            <h1 className="text-2xl font-semibold mb-6">QC Result – Order {orderId}</h1>
+            <h1 className="text-2xl font-semibold mb-1">QC Result – Order {orderId}</h1>
+            <div className="mb-4 text-sm text-neutral-600">
+                Technical Document: {data.technical_document.number}
+                {data.technical_document.version ? ` (v${data.technical_document.version})` : ''}
+            </div>
             <div className="overflow-x-auto border border-neutral-200 rounded-xl">
                 <table className="min-w-full divide-y divide-neutral-200 text-sm">
                     <thead className="bg-neutral-50">
@@ -95,18 +100,18 @@ const Result = () => {
 
                                     <td className="px-3 py-2 text-center">{min}</td>
                                     <td className={`px-3 py-2 text-center ${pass ? 'bg-green-50 text-green-700 font-medium'
-                                            : status === 'FAIL'
-                                                ? 'bg-red-50 text-red-700 font-medium'
-                                                : 'text-neutral-600'
+                                        : status === 'FAIL'
+                                            ? 'bg-red-50 text-red-700 font-medium'
+                                            : 'text-neutral-600'
                                         }`}>
                                         {Number.isFinite(avg) ? avg.toFixed(2) : '-'}
                                     </td>
                                     <td className="px-3 py-2 text-center">{max}</td>
                                     <td className="px-3 py-2 text-center">{target ?? '-'}</td>
                                     <td className={`px-3 py-2 text-center ${pass ? 'bg-green-50 text-green-700'
-                                            : status === 'FAIL'
-                                                ? 'bg-red-50 text-red-700'
-                                                : 'text-neutral-500'
+                                        : status === 'FAIL'
+                                            ? 'bg-red-50 text-red-700'
+                                            : 'text-neutral-500'
                                         }`}>
                                         {status}
                                     </td>

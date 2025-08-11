@@ -1,6 +1,6 @@
 import PrimaryButton from "@/components/buttons/primary"
 import InputSearch from "@/components/forms/input-search"
-import { ChevronRight, ChevronUpDown, Eye } from "@/components/icons/outline"
+import { ChevronRight, ChevronUpDown, Eye, Pencil } from "@/components/icons/outline"
 import Pagination from "@/components/pagination"
 import { useTechnicalDocument } from "@/hooks/repositories/useTechnicalDocument"
 import { useDebounce } from "@/hooks/useDebounce"
@@ -138,7 +138,7 @@ const TechnicalDocument = () => {
                                     </td>
                                     <td className="px-6 py-4 text-xs font-medium text-right whitespace-nowrap">
                                         <div className="inline-flex items-center space-x-2">
-                                            <ChevronRight className="text-neutral-500" />
+                                            <Pencil className="text-neutral-500" />
 
                                             {/* {can('brand.update') && (
                                             <Link to={`${row.id}/edit`} state={{ back: title, from: location?.pathname, transition: 'slide' }} className="inline-flex items-center p-1 text-white transition rounded-full bg-neutral-800 active:hover:scale-90">

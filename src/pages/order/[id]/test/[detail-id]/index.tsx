@@ -12,10 +12,30 @@ type TechnicalDocumentDetail = { test_parameter_id?: string | null; parameter_id
 type TechnicalDocument = { id: string; number: string; details?: TechnicalDocumentDetail[]; technical_document_details?: TechnicalDocumentDetail[]; items?: TechnicalDocumentDetail[] }
 
 const TOTAL_COLS = 6
+const EPS = 0.01
 const spans = (s: number) => { if (!s || s <= 0) return [TOTAL_COLS]; const b = Math.floor(TOTAL_COLS / s); const r = TOTAL_COLS % s; return Array.from({ length: s }, (_, i) => b + (i < r ? 1 : 0)) }
 const toNum = (v: unknown) => typeof v === 'number' ? v : parseFloat(String(v).replace(',', '.'))
 const r2 = (n: number) => Math.round(n * 100) / 100
-const eq = (a: number, b: number, t = 0.01) => Math.abs(a - b) <= t
+const eq = (a: number, b: number, t = EPS) => Math.abs(a - b) <= t
+
+function parseSpecRange(spec?: string) {
+    const s = (spec ?? '').trim()
+    if (!s || s === '-') return { kind: 'none' } as const
+    const norm = s.replace('+/-', '±')
+    const m = norm.match(/^\s*([+-]?\d+(?:[.,]\d+)?)\s*±\s*([+-]?\d+(?:[.,]\d+)?)(\s*%?)\s*$/i)
+    if (m) {
+        const mid = parseFloat(m[1].replace(',', '.'))
+        const tolRaw = parseFloat(m[2].replace(',', '.'))
+        const isPct = (m[3] ?? '').trim() === '%'
+        if (Number.isFinite(mid) && Number.isFinite(tolRaw)) {
+            const tol = isPct ? Math.abs(mid) * (tolRaw / 100) : tolRaw
+            return { kind: 'numeric', min: mid - tol, max: mid + tol } as const
+        }
+    }
+    const n = parseFloat(norm.replace(',', '.'))
+    if (Number.isFinite(n)) return { kind: 'numeric', target: n } as const
+    return { kind: 'string', target: s } as const
+}
 
 const TestPage = () => {
     const { query, replace } = useRouter()
@@ -28,9 +48,8 @@ const TestPage = () => {
     const [tdId, setTdId] = useState('')
     const [td, setTd] = useState<TechnicalDocument | null>(null)
 
-    // --- option list ----------------------------------------------------------
     useEffect(() => {
-        ; (async () => {
+        (async () => {
             const { data } = await apiClient.get('/technical-document')
             const opts = (data?.data?.data ?? data?.data ?? []).map((d: any) => ({ id: d.id, number: d.number }))
             setTdOpts(opts)
@@ -38,7 +57,6 @@ const TestPage = () => {
         })()
     }, [])
 
-    // --- parameters for this order-detail -------------------------------------
     useEffect(() => {
         if (!detailId) return
             ; (async () => {
@@ -51,7 +69,6 @@ const TestPage = () => {
             })()
     }, [detailId])
 
-    // --- selected Technical Document -----------------------------------------
     useEffect(() => {
         if (!tdId) { setTd(null); return }
         ; (async () => {
@@ -78,15 +95,52 @@ const TestPage = () => {
 
     const submit = (e: FormEvent) => {
         e.preventDefault()
+
+        const items = params.map((p) => {
+            const vals = measure[p.id] ?? []
+            const rawInputs = vals.map(v => (v.value ?? '').toString().trim()).filter(s => s !== '')
+            const numericOK = rawInputs.length > 0 && rawInputs.every(s => !Number.isNaN(parseFloat(s.replace(',', '.'))))
+            const nums = numericOK ? rawInputs.map(s => parseFloat(s.replace(',', '.'))) : []
+            const avgNum = nums.length ? r2(nums.reduce((a, b) => a + b, 0) / nums.length) : NaN
+
+            const specStr = specified[p.id]
+            const specInfo = parseSpecRange(specStr)
+
+            let status: 'pass' | 'fail' | '-'
+            if ((specStr && specStr !== '-' && specStr !== '') && rawInputs.length === 0) {
+                status = '-'
+            } else if (specInfo.kind === 'none') {
+                status = rawInputs.length ? 'pass' : '-'
+            } else if (specInfo.kind === 'numeric') {
+                if (!numericOK || !Number.isFinite(avgNum)) {
+                    status = 'fail'
+                } else if (typeof (specInfo as any).min === 'number' && typeof (specInfo as any).max === 'number') {
+                    const { min, max } = specInfo as { min: number; max: number }
+                    status = (avgNum >= min - EPS && avgNum <= max + EPS) ? 'pass' : 'fail'
+                } else if (typeof (specInfo as any).target === 'number') {
+                    status = eq(avgNum, (specInfo as any).target) ? 'pass' : 'fail'
+                } else {
+                    status = 'fail'
+                }
+            } else {
+                const target = (specInfo as any).target as string
+                status = rawInputs.length && rawInputs.every(s => s.toLowerCase() === target.toLowerCase()) ? 'pass' : 'fail'
+            }
+
+            return {
+                test_parameter_id: p.id,
+                values: rawInputs,
+                status,
+            }
+        })
+
         const payload = {
             order_id: orderId,
             order_detail_id: detailId,
             technical_document_id: tdId,
-            parameters: params.map(p => ({
-                test_parameter_id: p.id,
-                values: (measure[p.id] ?? []).map(v => (v.value ?? '').toString().trim())
-            }))
+            parameters: items,
         }
+
         apiClient.post('/qc-inspection', payload)
             .then(r => { toast.success(r?.data?.message ?? 'Submitted'); replace(`/order/${orderId}`) })
             .catch(err => toast.error(err?.response?.data?.message ?? 'Submit failed'))
@@ -128,43 +182,35 @@ const TestPage = () => {
                                 const steps = Math.min(p.test_step, TOTAL_COLS)
                                 const colspans = spans(steps)
 
-                                /* ------------------------------------------------------------
-                                 * 1️⃣  Gather raw input strings and detect “numeric mode”
-                                 * ---------------------------------------------------------- */
                                 const rawInputs = vals.map(v => (v.value ?? '').toString().trim()).filter(s => s !== '')
-                                const numericOK = rawInputs.length &&
-                                    rawInputs.every(s => !Number.isNaN(parseFloat(s.replace(',', '.'))))
-
-                                /* numeric statistics (only meaningful in numeric mode) */
+                                const numericOK = rawInputs.length > 0 && rawInputs.every(s => !Number.isNaN(parseFloat(s.replace(',', '.'))))
                                 const nums = numericOK ? rawInputs.map(s => parseFloat(s.replace(',', '.'))) : []
                                 const minVal = nums.length ? Math.min(...nums).toFixed(2) : '-'
                                 const maxVal = nums.length ? Math.max(...nums).toFixed(2) : '-'
                                 const avgNum = nums.length ? r2(nums.reduce((a, b) => a + b, 0) / nums.length) : NaN
 
-                                /* specified target (may be numeric or string or missing) */
-                                const specStr = specified[p.id]            // '-' | undefined | '15' | 'Round Stranded'
-                                const specNum = toNum(specStr)
+                                const specStr = specified[p.id]
+                                const specInfo = parseSpecRange(specStr)
 
-                                /* ------------------------------------------------------------
- * 2️⃣  Status rules (updated)
- *    • no input                     ➜ status = '-'
- *    • no specified value (target)  ➜ PASS (numeric or string)
- *    • numeric spec                 ➜ compare avgNum ≈ spec
- *    • string  spec                 ➜ every input === spec (ci)
- * ---------------------------------------------------------- */
                                 let status: 'PASS' | 'FAIL' | '-'
-
-                                if (rawInputs.length === 0) {
-                                    status = '-'                                                    // empty input
-                                } else if (!specStr || specStr === '-' || specStr === '') {
-                                    status = 'PASS'                                                 // no target → PASS
-                                } else if (numericOK && Number.isFinite(specNum)) {
-                                    status = Number.isFinite(avgNum) && eq(avgNum, specNum) ? 'PASS' : 'FAIL'
-                                } else if (!numericOK && !Number.isFinite(specNum)) {
-                                    const target = specStr.toLowerCase()
-                                    status = rawInputs.every(s => s.toLowerCase() === target) ? 'PASS' : 'FAIL'
+                                if ((specStr && specStr !== '-' && specStr !== '') && rawInputs.length === 0) {
+                                    status = '-'
+                                } else if (specInfo.kind === 'none') {
+                                    status = rawInputs.length ? 'PASS' : '-'
+                                } else if (specInfo.kind === 'numeric') {
+                                    if (!numericOK || !Number.isFinite(avgNum)) {
+                                        status = 'FAIL'
+                                    } else if (typeof (specInfo as any).min === 'number' && typeof (specInfo as any).max === 'number') {
+                                        const { min, max } = specInfo as { min: number; max: number }
+                                        status = (avgNum >= min - EPS && avgNum <= max + EPS) ? 'PASS' : 'FAIL'
+                                    } else if (typeof (specInfo as any).target === 'number') {
+                                        status = eq(avgNum, (specInfo as any).target) ? 'PASS' : 'FAIL'
+                                    } else {
+                                        status = 'FAIL'
+                                    }
                                 } else {
-                                    status = 'FAIL'                                                 // mismatched types
+                                    const target = (specInfo as any).target as string
+                                    status = rawInputs.length && rawInputs.every(s => s.toLowerCase() === target.toLowerCase()) ? 'PASS' : 'FAIL'
                                 }
 
                                 const pass = status === 'PASS'
@@ -173,7 +219,6 @@ const TestPage = () => {
                                         ? 'bg-green-50 text-green-700 font-medium'
                                         : 'bg-red-50 text-red-700 font-medium'
                                     : 'text-neutral-600'
-
                                 const statusTone =
                                     pass
                                         ? 'bg-green-50 text-green-700'
@@ -189,12 +234,14 @@ const TestPage = () => {
                                         {steps > 0
                                             ? colspans.map((c, i) => (
                                                 <td key={i} colSpan={c} className="px-2 py-1 text-center">
-                                                    <Input value={vals[i]?.value ?? ''}
+                                                    <Input
+                                                        value={vals[i]?.value ?? ''}
                                                         onChange={(e: ChangeEvent<HTMLInputElement>) =>
                                                             setMeasure(m => ({
                                                                 ...m,
-                                                                [p.id]: m[p.id].map((o, j) => j === i ? { value: e.target.value } : o)
-                                                            }))}
+                                                                [p.id]: m[p.id].map((o, j) => (j === i ? { value: e.target.value } : o)),
+                                                            }))
+                                                        }
                                                     />
                                                 </td>
                                             ))

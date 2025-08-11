@@ -46,7 +46,9 @@ const OrderDetail = () => {
 
     const router = useRouter()
 
-    const { data: orders, isLoading: isLoadingOrderData, isValidating: isValidatingOrderData, isError } = useOrders({})
+    const { data: orders, isLoading: isLoadingOrderData, isValidating: isValidatingOrderData, isError } = useOrders({
+        id: orderId
+    })
 
     useEffect(() => {
         if (!isLoadingOrderData && !isValidatingOrderData) {
